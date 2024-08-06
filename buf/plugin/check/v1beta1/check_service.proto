@@ -1,0 +1,131 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.check.v1beta1;
+
+import "buf/plugin/check/v1beta1/annotation.proto";
+import "buf/plugin/check/v1beta1/file.proto";
+import "buf/plugin/check/v1beta1/option.proto";
+import "buf/plugin/check/v1beta1/rule.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1beta1";
+
+// The service that defines check operations.
+//
+// A check is a lint or breaking change check. The only difference between lint and breaking
+// change checks from an API standpoint is that breaking change checks also need Files
+// to check against. As such, instead of duplicating the API into two separate services, we
+// combine all checks into a single interface for simplicity of plugin author implementation.
+service CheckService {
+  // Check a set of Files for failures.
+  //
+  // All Annotations returned will have an ID that is contained within a Rule listed by ListRules.
+  rpc Check(CheckRequest) returns (CheckResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // List all rules that this service implements.
+  rpc ListRules(ListRulesRequest) returns (ListRulesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+message CheckRequest {
+  // The Files to check.
+  //
+  // Required.
+  repeated File files = 1 [(buf.validate.field).repeated.min_items = 1];
+  // The Files to check against.
+  //
+  // Optional.
+  //
+  // TODO: We previously wanted to say that if any Rule is a breaking change rule,
+  // that this is required. However, this doesn't account for the base case with a new
+  // set of files. There's a few possible solutions here:
+  //
+  //   - Wrap this in a message and say that the message must be present to indicate
+  //     that this field was actually set.
+  //   - Split lint and breaking across separate RPCs, perhaps Check and CheckAgainst,
+  //     where CheckAgainst rule_ids must be breaking change Rules.
+  //
+  // For now, we're going to do nothing, but this needs to be resolved before release.
+  repeated File against_files = 2;
+  // Options for the Rules.
+  //
+  // Optional.
+  //
+  // Options may modify the behavior of a Rule.
+  repeated Option options = 3;
+  // The IDs of the Rules to check.
+  //
+  // Optional. If not specified, all Rules returned by ListRules are checked.
+  //
+  // The maximum number of Rule IDs that can be sent in a single request is 250; if there are more
+  // Rules that should be run, you must make multiple calls to Check.
+  //
+  // All IDs must be be IDs of Rules returned by ListRules.
+  repeated string rule_ids = 4 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).repeated.max_items = 250,
+    (buf.validate.field).repeated.items.string = {
+      min_len: 4
+      max_len: 64
+      pattern: "^[A-Z][A-Z_]*[A-Z]$"
+    }
+  ];
+}
+
+message CheckResponse {
+  // The annotations produced from Rule failures.
+  //
+  // All Annotations must have IDs that match the IDs of the Rules returned by ListRules.
+  repeated Annotation annotations = 1;
+}
+
+// A request for the rules that the service implements.
+message ListRulesRequest {
+  // The maximum number of items to return.
+  //
+  // The default value is 250.
+  uint32 page_size = 1 [(buf.validate.field).uint32.lte = 1000];
+  // The page to start from.
+  //
+  // If empty, the first page is returned,
+  string page_token = 2 [(buf.validate.field).string.max_len = 4096];
+  // Options for the Rules.
+  //
+  // These will be passed on to each Rule to control various properties. Some properties
+  // of Rules must not change based on Options, while some are allowed to. Currently,
+  // id and categories must *not* change due to an Option, while purpose is allowed
+  // to change due to an Option.
+  repeated Option options = 3;
+}
+
+// A response containing the rules that the service implements.
+message ListRulesResponse {
+  // The next page token.
+  //
+  // If empty, there are no more pages.
+  string next_page_token = 1 [(buf.validate.field).string.max_len = 4096];
+  // The rules that the service implements.
+  //
+  // The IDs of all Rules returned will be unique.
+  // TODO: Encode the above as a CEL expression.
+  //
+  // It is invalid for Check to respond with an Annotation that has an ID which
+  // is not also the ID of a Rule within this list.
+  repeated Rule rules = 2 [(buf.validate.field).repeated.min_items = 1];
+}

@@ -1,0 +1,62 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.check.v1beta1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1beta1";
+
+// An option for a Rule.
+//
+// Options are string key/values that can control the behavior of a Rule when run with Check,
+// and can control the value of the Purpose string of the Rule.
+//
+// For example, if you had a Rule that checked that the suffix of all Services was "API",
+// you may want an option with key "service_suffix" that can override the suffix "API" to
+// another suffix such as "Service". This would result in the behavior of check changing,
+// as well as result in the Purpose string potentially changing to specify that the
+// expected suffix is "Service" instead of "API".
+message Option {
+  // The option key.
+  //
+  // This identifies the option.
+  //
+  // Required.
+  //
+  // This must have at least four characters.
+  // This must start and end with a lowercase letter from a-z, and only consist
+  // of lowercase letters from a-z and underscores.
+  string key = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 4
+      max_len: 64
+      pattern: "^[a-z][a-z_]*[a-z]$"
+    }
+  ];
+  // The option value.
+  //
+  // Required.
+  //
+  // It is not possible to set an option with an empty value. If you want to specify
+  // set or not set, use a sentinel value such as "true" or "1".
+  //
+  // This is a bytes value to allow plugins to encode whatever information they wish, however
+  // plugin authors are responsible for parsing. For example, users may want to specify a number,
+  // in which case the plugin would be responsible for parsing this number.
+  bytes value = 2 [(buf.validate.field).required = true];
+}
