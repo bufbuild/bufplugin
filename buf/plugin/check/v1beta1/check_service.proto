@@ -105,13 +105,6 @@ message ListRulesRequest {
   //
   // If empty, the first page is returned,
   string page_token = 2 [(buf.validate.field).string.max_len = 4096];
-  // Options for the Rules.
-  //
-  // These will be passed on to each Rule to control various properties. Some properties
-  // of Rules must not change based on Options, while some are allowed to. Currently,
-  // id and categories must *not* change due to an Option, while purpose is allowed
-  // to change due to an Option.
-  repeated Option options = 3;
 }
 
 // A response containing the rules that the service implements.
