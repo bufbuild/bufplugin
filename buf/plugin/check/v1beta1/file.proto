@@ -52,4 +52,16 @@ message File {
   // We use "import" as this matches with the protoc concept of --include_imports, however
   // import is a bit of an overloaded term.
   bool is_import = 2;
+  // is_syntax_unspecified denotes whether the file did not have a syntax explicitly specified.
+  //
+  // Per the FileDescriptorProto spec, it would be fine in this case to just leave the syntax field
+  // unset to denote this and to set the syntax field to "proto2" if it is specified. However,
+  // protoc does not set the syntax field if it was "proto2". Plugins may want to differentiate
+  // between "proto2" and unset, and this field allows them to.
+  bool is_syntax_unspecified = 3;
+  // unused_dependency are the indexes within the dependency field on FileDescriptorProto for those
+  // dependencies that are not used.
+  //
+  // This matches the shape of the public_dependency and weak_dependency fields.
+  repeated int32 unused_dependency = 4;
 }
