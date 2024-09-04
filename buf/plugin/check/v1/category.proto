@@ -1,0 +1,89 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.check.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+
+// A category that a CheckService implements.
+//
+// Buf uses categories to include or exclude sets of rules via configuration.
+message Category {
+  option (buf.validate.message).cel = {
+    id: "deprecated_true_if_replacement_ids_present"
+    message: "deprecated must be true if replacement_ids are present"
+    expression: "!has(this.replacement_ids) || (has(this.replacement_ids) && this.deprecated)"
+  };
+
+  // The ID of the category.
+  //
+  // Required.
+  //
+  // This uniquely identifies the Category.
+  //
+  // Category IDs must also be unique relative to Rule IDs.
+  //
+  // Rule and Category IDs must be unique across all plugins used at the same time with
+  // Buf. That is, no two plugins can both publish the same Rule or Category ID.
+  //
+  // This must have at least three characters.
+  // This must start and end with a capital letter from A-Z or digits from 0-9, and only
+  // consist of capital letters from A-Z, digits from 0-0, and underscores.
+  string id = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 3
+      max_len: 64
+      pattern: "^[A-Z0-9][A-Z0-9_]*[A-Z0-9]$"
+    }
+  ];
+  // A user-displayable purpose of the category.
+  //
+  // Required.
+  //
+  // This should be a proper sentence that starts with a capital letter and ends in a period.
+  string purpose = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      min_len: 2
+      max_len: 256
+      pattern: "^[A-Z].*[.]$"
+    }
+  ];
+  // Whether or not this Category is deprecated.
+  //
+  // If the Category is deprecated, it may be replaced by 0 or more Categories. These will be
+  // denoted by replacement_ids.
+  bool deprecated = 3;
+  // The IDs of the Categories that replace this Category, if this Category is deprecated.
+  //
+  // This means that the combination of the Categories specified by replacement_ids replace this
+  // Category entirely, and this Category is considered equivalent to the AND of the categories
+  // specified by replacement_ids.
+  //
+  // This will only be non-empty if deprecated is true.
+  // This may be empty even if deprecated is true.
+  //
+  // It is not valid for a deprecated Category to specfiy another deprecated Category as a
+  // replacement.
+  repeated string replacement_ids = 4 [(buf.validate.field).repeated.items.string = {
+    min_len: 3
+    max_len: 64
+    pattern: "^[A-Z0-9][A-Z0-9_]*[A-Z0-9]$"
+  }];
+}

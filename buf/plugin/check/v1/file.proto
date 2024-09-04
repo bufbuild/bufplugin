@@ -1,0 +1,71 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.check.v1;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/descriptor.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+
+// A File to check.
+//
+// A File is represented as a FileDescriptorProto, with the additional property of whether
+// or not the File is an import.
+message File {
+  // The FileDescriptorProto that represents the file.
+  //
+  // Required.
+  //
+  // This will always contain SourceCodeInfo.
+  // All files will be unique by name.
+  google.protobuf.FileDescriptorProto file_descriptor_proto = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).cel = {
+      id: "name_present"
+      message: "name must be present"
+      expression: "has(this.name)"
+    },
+    (buf.validate.field).cel = {
+      id: "source_code_info_present"
+      message: "source_code_info must be present"
+      expression: "has(this.source_code_info)"
+    }
+  ];
+  // Whether or not the file is considered an "import".
+  //
+  // An import is a file that is either:
+  //
+  //   - A Well-Known Type included from the compiler and imported by a targeted file.
+  //   - A file that was included from a Buf module dependency and imported by a targeted file.
+  //   - A file that was not targeted, but was imported by a targeted file.
+  //
+  // We use "import" as this matches with the protoc concept of --include_imports, however
+  // import is a bit of an overloaded term.
+  bool is_import = 2;
+  // Whether the file did not have a syntax explicitly specified.
+  //
+  // Per the FileDescriptorProto spec, it would be fine in this case to just leave the syntax field
+  // unset to denote this and to set the syntax field to "proto2" if it is specified. However,
+  // protoc does not set the syntax field if it was "proto2". Plugins may want to differentiate
+  // between "proto2" and unset, and this field allows them to.
+  bool is_syntax_unspecified = 3;
+  // The indexes within the dependency field on FileDescriptorProto for those dependencies that
+  // are not used.
+  //
+  // This matches the shape of the public_dependency and weak_dependency fields.
+  repeated int32 unused_dependency = 4;
+}

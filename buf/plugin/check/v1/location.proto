@@ -1,0 +1,62 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.check.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+
+// A reference to a File or to a location within a File.
+//
+// A File is referenced by name.
+// A location is referenced by its source path, following the semantics of
+// google.protobuf.SourceCodeInfo.Location.path.
+//
+// A Location may or may not include a source path. If a source path is not included, the
+// Location just references the File as a whole.
+message Location {
+  option (buf.validate.message).cel = {
+    id: "file_name_present_if_source_path_present"
+    message: "file_name must be present if source_path is present"
+    expression: "!has(this.source_path) || (has(this.source_path) && has(this.file_name))"
+  };
+
+  // The name of the File. This matches the name field in the corresponding FileDescriptorProto.
+  //
+  // Required.
+  //
+  // The path must be relative, and cannot contain any "." or ".." components.
+  // The separator "/" must be used.
+  string file_name = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string = {
+      max_len: 4096
+      not_contains: "\\"
+      pattern: "^([^/.][^/]?|[^/][^/.]|[^/]{3,})(/([^/.][^/]?|[^/][^/.]|[^/]{3,}))*$"
+    }
+  ];
+  // The SourceCodeInfo.Location.path within the FileDescriptorProto.
+  //
+  // This corresponds to a SourceCodeInfo.Location within the corresponding FileDescriptorProto.
+  // Buf will find the first SourceCodeInfo.Location with this path, and use this to extract line
+  // and column information, as well as read the comments for ignores.
+  //
+  // Optional. If not set, the Location just references the File as a whole.
+  //
+  // It is not valid to have a non-zero value of source_path without a name.
+  repeated int32 source_path = 2 [(buf.validate.field).repeated.max_items = 64];
+}

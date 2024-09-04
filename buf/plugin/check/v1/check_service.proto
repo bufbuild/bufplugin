@@ -1,0 +1,191 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.check.v1;
+
+import "buf/plugin/check/v1/annotation.proto";
+import "buf/plugin/check/v1/category.proto";
+import "buf/plugin/check/v1/file.proto";
+import "buf/plugin/check/v1/option.proto";
+import "buf/plugin/check/v1/rule.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+
+// The service that defines check operations.
+//
+// A check is a lint or breaking change check. The only difference between lint and breaking
+// change checks from an API standpoint is that breaking change checks also need Files
+// to check against. As such, instead of duplicating the API into two separate services, we
+// combine all checks into a single interface for simplicity of plugin author implementation.
+service CheckService {
+  // Check a set of Files for failures.
+  //
+  // All Annotations returned will have an ID that is contained within a Rule listed by ListRules.
+  rpc Check(CheckRequest) returns (CheckResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // List all rules that this service implements.
+  rpc ListRules(ListRulesRequest) returns (ListRulesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+  // List all categories that this service implements.
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse) {
+    option idempotency_level = NO_SIDE_EFFECTS;
+  }
+}
+
+// A request to check files.
+message CheckRequest {
+  // The Files to check.
+  //
+  // Required.
+  //
+  // Files are guaranteed to be unique by file_descriptor_proto.name.
+  repeated File files = 1 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).cel = {
+      id: "file_names_unique"
+      message: "file names must be unique"
+      expression: "this.filter(file, has(file.file_descriptor_proto)).map(file, file.file_descriptor_proto.name).unique()"
+    }
+  ];
+  // The Files to check against.
+  //
+  // Optional.
+  //
+  // This is usually the state of the Files at a previous VCS commit, or the state of
+  // the Files at a release tag.
+  //
+  // Files are guaranteed to be unique by file_descriptor_proto.name.
+  //
+  // Note that this may be empty, even for breaking change checks, to account for
+  // going from the empty state to the first set of Files.
+  repeated File against_files = 2 [(buf.validate.field).cel = {
+    id: "file_names_unique"
+    message: "file names must be unique"
+    expression: "this.filter(file, has(file.file_descriptor_proto)).map(file, file.file_descriptor_proto.name).unique()"
+  }];
+  // Options for the Rules.
+  //
+  // Optional.
+  //
+  // Options may modify the behavior of a Rule.
+  //
+  // For now, callers are expected to know what keys are available, and how to construct Values
+  // for each key. In the future, we may add a ListOptions or otherwise to CheckService that will
+  // describe the available options keys, which can then be validated against.
+  //
+  // It is acceptable for a plugin to return an error on an unknown or misconstructed Option.
+  repeated Option options = 3;
+  // The IDs of the Rules to check.
+  //
+  // Optional. If not specified, all Rules returned by ListRules are checked.
+  //
+  // The maximum number of Rule IDs that can be sent in a single request is 250; if there are more
+  // Rules that should be run, you must make multiple calls to Check.
+  //
+  // All IDs must be be IDs of Rules returned by ListRules.
+  repeated string rule_ids = 4 [
+    (buf.validate.field).repeated.max_items = 250,
+    (buf.validate.field).repeated.items.string = {
+      min_len: 3
+      max_len: 64
+      pattern: "^[A-Z0-9][A-Z0-9_]*[A-Z0-9]$"
+    }
+  ];
+}
+
+// A response containing annotations that the check returned from failures.
+message CheckResponse {
+  // The annotations produced from Rule failures.
+  //
+  // All Annotations must have IDs that match the IDs of the Rules returned by ListRules.
+  repeated Annotation annotations = 1;
+}
+
+// A request for the rules that the service implements.
+message ListRulesRequest {
+  // The maximum number of items to return.
+  //
+  // The default value is 250.
+  uint32 page_size = 1 [(buf.validate.field).uint32.lte = 1000];
+  // The page to start from.
+  //
+  // If empty, the first page is returned,
+  string page_token = 2 [(buf.validate.field).string.max_len = 4096];
+}
+
+// A response containing the rules that the service implements.
+message ListRulesResponse {
+  // The next page token.
+  //
+  // If empty, there are no more pages.
+  string next_page_token = 1 [(buf.validate.field).string.max_len = 4096];
+  // The rules that the service implements.
+  //
+  // The IDs of all Rules returned will be unique.
+  // The IDs will also be unique relative to the Category IDs returned from ListCategories.
+  //
+  // Rules will only have Category IDs that are also returned from ListCategories, and every
+  // Category returned from ListCategories will have at least one Rule with its Category ID.
+  //
+  // It is invalid for Check to respond with an Annotation that has an ID which
+  // is not also the ID of a Rule within this list.
+  repeated Rule rules = 2 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).cel = {
+      id: "rule_ids_unique"
+      message: "rule ids must be unique"
+      expression: "this.map(rule, rule.id).unique()"
+    }
+  ];
+}
+
+// A request for the categories that the service implements.
+message ListCategoriesRequest {
+  // The maximum number of items to return.
+  //
+  // The default value is 250.
+  uint32 page_size = 1 [(buf.validate.field).uint32.lte = 1000];
+  // The page to start from.
+  //
+  // If empty, the first page is returned,
+  string page_token = 2 [(buf.validate.field).string.max_len = 4096];
+}
+
+// A response containing the categories that the service implements.
+message ListCategoriesResponse {
+  // The next page token.
+  //
+  // If empty, there are no more pages.
+  string next_page_token = 1 [(buf.validate.field).string.max_len = 4096];
+  // The categories that the service implements.
+  //
+  // The IDs of all Categories returned will be unique.
+  // The IDs will also be unique relative to the Rule IDs returned from ListRules.
+  //
+  // Rules will only have Category IDs that are also returned from ListCategories, and every
+  // Category returned from ListCategories will have at least one Rule with its Category ID.
+  //
+  // It is invalid for Check to respond with an Annotation that has an ID which
+  // is not also the ID of a Category within this list.
+  repeated Category categories = 2 [(buf.validate.field).cel = {
+    id: "category_ids_unique"
+    message: "category ids must be unique"
+    expression: "this.map(category, category.id).unique()"
+  }];
+}
