@@ -9,15 +9,15 @@ Bufplugin is Buf's framework for authoring plugins that work with the Buf CLI an
 Registry. Currently, this provides an API for custom lint and breaking change plugins, so users can
 implement their own lint and breaking change rules.
 
-This repository contains the Protobuf APIs that comprise the Bufplugin framework. Buf plugins are
+This repository contains the Protobuf APIs that comprise the bufplugin framework. Buf plugins are
 implemented using [PluginRPC](https://github.com/pluginrpc/pluginrpc). The entrypoint for custom
 lint and breaking change plugins is the [CheckService](buf/plugin/check/v1/check_service.proto). A
 plugin is simply an implementation of the `CheckService` served via `PluginRPC` in a built binary.
 
 While the APIs provide a mechanism to implement a Buf plugin in any language, we provide
 [bufplugin-go](https://github.com/bufbuild/bufplugin-go) as an easy way to author Buf plugins in Go.
-We would highly recommend starting there: bufplugin-go is the best way to author custom lint and
-breaking change plugins, and is likely the repository you are looking for.
+We would highly recommend starting there: **bufplugin-go is the best way to author custom lint and
+breaking change plugins, and is likely the repository you are looking for.**
 
 See [buf.build/bufbuild/bufplugin](https://buf.build/bufbuild/bufplugin) for all API documentation.
 
