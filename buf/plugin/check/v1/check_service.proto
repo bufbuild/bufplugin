@@ -19,7 +19,7 @@ package buf.plugin.check.v1;
 import "buf/plugin/check/v1/annotation.proto";
 import "buf/plugin/check/v1/category.proto";
 import "buf/plugin/check/v1/rule.proto";
-import "buf/plugin/descriptor/v1/file.proto";
+import "buf/plugin/descriptor/v1/file_descriptor.proto";
 import "buf/plugin/option/v1/option.proto";
 import "buf/validate/validate.proto";
 
@@ -28,11 +28,11 @@ option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/
 // The service that defines check operations.
 //
 // A check is a lint or breaking change check. The only difference between lint and breaking
-// change checks from an API standpoint is that breaking change checks also need Files
+// change checks from an API standpoint is that breaking change checks also need FileDescriptors
 // to check against. As such, instead of duplicating the API into two separate services, we
 // combine all checks into a single interface for simplicity of plugin author implementation.
 service CheckService {
-  // Check a set of Files for failures.
+  // Check a set of FileDescriptors for failures.
   //
   // All Annotations returned will have an ID that is contained within a Rule listed by ListRules.
   rpc Check(CheckRequest) returns (CheckResponse) {
@@ -48,36 +48,36 @@ service CheckService {
   }
 }
 
-// A request to check files.
+// A request to check FileDescriptors.
 message CheckRequest {
-  // The Files to check.
+  // The FileDescriptors to check.
   //
   // Required.
   //
-  // Files are guaranteed to be unique by file_descriptor_proto.name.
-  repeated buf.plugin.descriptor.v1.File files = 1 [
+  // FileDescriptors are guaranteed to be unique by file_descriptor_proto.name.
+  repeated buf.plugin.descriptor.v1.FileDescriptor file_descriptors = 1 [
     (buf.validate.field).repeated.min_items = 1,
     (buf.validate.field).cel = {
-      id: "file_names_unique"
-      message: "file names must be unique"
-      expression: "this.filter(file, has(file.file_descriptor_proto)).map(file, file.file_descriptor_proto.name).unique()"
+      id: "file_descriptor_names_unique"
+      message: "FileDescriptor names must be unique"
+      expression: "this.filter(file_descriptor, has(file_descriptor.file_descriptor_proto)).map(file_descriptor, file_descriptor.file_descriptor_proto.name).unique()"
     }
   ];
-  // The Files to check against.
+  // The FileDescriptors to check against.
   //
   // Optional.
   //
-  // This is usually the state of the Files at a previous VCS commit, or the state of
-  // the Files at a release tag.
+  // This is usually the state of the FileDescriptors at a previous VCS commit, or the state of
+  // the FileDescriptors at a release tag.
   //
-  // Files are guaranteed to be unique by file_descriptor_proto.name.
+  // FileDescriptors are guaranteed to be unique by file_descriptor_proto.name.
   //
   // Note that this may be empty, even for breaking change checks, to account for
-  // going from the empty state to the first set of Files.
-  repeated buf.plugin.descriptor.v1.File against_files = 2 [(buf.validate.field).cel = {
-    id: "file_names_unique"
-    message: "file names must be unique"
-    expression: "this.filter(file, has(file.file_descriptor_proto)).map(file, file.file_descriptor_proto.name).unique()"
+  // going from the empty state to the first set of FileDescriptors.
+  repeated buf.plugin.descriptor.v1.FileDescriptor against_file_descriptors = 2 [(buf.validate.field).cel = {
+    id: "file_descriptor_names_unique"
+    message: "FileDescriptor names must be unique"
+    expression: "this.filter(file_descriptor, has(file_descriptor.file_descriptor_proto)).map(file_descriptor, file_descriptor.file_descriptor_proto.name).unique()"
   }];
   // Options for the Rules.
   //

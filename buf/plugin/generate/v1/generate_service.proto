@@ -16,7 +16,10 @@ syntax = "proto3";
 
 package buf.plugin.generate.v1;
 
-//import "buf/validate/validate.proto";
+import "buf/plugin/descriptor/v1/file_descriptor.proto";
+import "buf/plugin/file/v1/file.proto";
+import "buf/plugin/option/v1/option.proto";
+import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/generate/v1";
 
@@ -29,7 +32,50 @@ service GenerateService {
 }
 
 // A request for generation.
-message GenerateRequest {}
+message GenerateRequest {
+  // The FileDescriptors to generate for.
+  //
+  // Required.
+  //
+  // FileDescriptors are guaranteed to be unique by file_descriptor_proto.name.
+  //
+  // FileDescriptors will be self-contained, that is any import of a FileDescriptor will be
+  // contained within file_descriptors.
+  //
+  // Content should only be generated for non-imports.
+  //
+  // FileDescriptors will appear in topological order, that is each FileDescriptor will appear
+  // before any FileDescriptor that imports it.
+  //
+  // FileDescriptorss will contain both runtime-retention options and source-retention options.
+  repeated buf.plugin.descriptor.v1.FileDescriptor file_descriptors = 1 [
+    (buf.validate.field).repeated.min_items = 1,
+    (buf.validate.field).cel = {
+      id: "file_descriptor_names_unique"
+      message: "FileDescriptor names must be unique"
+      expression: "this.filter(file_descriptor, has(file_descriptor.file_descriptor_proto)).map(file_descriptor, file_descriptor.file_descriptor_proto.name).unique()"
+    }
+  ];
+  // Options for generation.
+  //
+  // Optional.
+  //
+  // For now, callers are expected to know what keys are available, and how to construct Values
+  // for each key. In the future, we may add a ListOptions or otherwise to GenerateService that will
+  // describe the available options keys, which can then be validated against.
+  //
+  // It is acceptable for a plugin to return an error on an unknown or misconstructed Option.
+  repeated buf.plugin.option.v1.Option options = 2;
+}
 
-// A response containing generated file content.
-message GenerateResponse {}
+// A response containing generated Files.
+message GenerateResponse {
+  // The generated Files.
+  //
+  // File are guaranteed to be unique by path.
+  repeated buf.plugin.file.v1.File files = 1 [(buf.validate.field).cel = {
+    id: "file_paths_unique"
+    message: "File paths must be unique"
+    expression: "this.map(file, file.path).unique()"
+  }];
+}
