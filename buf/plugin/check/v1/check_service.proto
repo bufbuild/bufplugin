@@ -18,9 +18,9 @@ package buf.plugin.check.v1;
 
 import "buf/plugin/check/v1/annotation.proto";
 import "buf/plugin/check/v1/category.proto";
-import "buf/plugin/check/v1/option.proto";
 import "buf/plugin/check/v1/rule.proto";
 import "buf/plugin/descriptor/v1/file.proto";
+import "buf/plugin/option/v1/option.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
@@ -90,7 +90,7 @@ message CheckRequest {
   // describe the available options keys, which can then be validated against.
   //
   // It is acceptable for a plugin to return an error on an unknown or misconstructed Option.
-  repeated Option options = 3;
+  repeated buf.plugin.option.v1.Option options = 3;
   // The IDs of the Rules to check.
   //
   // Optional. If not specified, all Rules returned by ListRules are checked.
