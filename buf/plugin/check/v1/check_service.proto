@@ -18,9 +18,9 @@ package buf.plugin.check.v1;
 
 import "buf/plugin/check/v1/annotation.proto";
 import "buf/plugin/check/v1/category.proto";
-import "buf/plugin/check/v1/file.proto";
 import "buf/plugin/check/v1/option.proto";
 import "buf/plugin/check/v1/rule.proto";
+import "buf/plugin/descriptor/v1/file.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
@@ -55,7 +55,7 @@ message CheckRequest {
   // Required.
   //
   // Files are guaranteed to be unique by file_descriptor_proto.name.
-  repeated File files = 1 [
+  repeated buf.plugin.descriptor.v1.File files = 1 [
     (buf.validate.field).repeated.min_items = 1,
     (buf.validate.field).cel = {
       id: "file_names_unique"
@@ -74,7 +74,7 @@ message CheckRequest {
   //
   // Note that this may be empty, even for breaking change checks, to account for
   // going from the empty state to the first set of Files.
-  repeated File against_files = 2 [(buf.validate.field).cel = {
+  repeated buf.plugin.descriptor.v1.File against_files = 2 [(buf.validate.field).cel = {
     id: "file_names_unique"
     message: "file names must be unique"
     expression: "this.filter(file, has(file.file_descriptor_proto)).map(file, file.file_descriptor_proto.name).unique()"
