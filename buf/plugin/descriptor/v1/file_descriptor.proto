@@ -31,8 +31,6 @@ message FileDescriptor {
   // Required.
   //
   // This will always contain SourceCodeInfo.
-  //
-  // TODO: Validate that the path is correctly formed.
   google.protobuf.FileDescriptorProto file_descriptor_proto = 1 [
     (buf.validate.field).required = true,
     (buf.validate.field).cel = {
