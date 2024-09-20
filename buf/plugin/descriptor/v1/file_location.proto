@@ -26,8 +26,8 @@ option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/
 // A location is referenced by its source path, following the semantics of
 // google.protobuf.SourceCodeInfo.Location.path.
 //
-// A FileLocation may or may not include a source path. If a source path is not included, the
-// FileLocation just references the FileDescriptor as a whole.
+// A Location may or may not include a source path. If a source path is not included, the
+// Location just references the FileDescriptor as a whole.
 message FileLocation {
   option (buf.validate.message).cel = {
     id: "file_name_present_if_source_path_present"
