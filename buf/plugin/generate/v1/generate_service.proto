@@ -47,7 +47,7 @@ message GenerateRequest {
   // FileDescriptors will appear in topological order, that is each FileDescriptor will appear
   // before any FileDescriptor that imports it.
   //
-  // FileDescriptorss will contain both runtime-retention options and source-retention options.
+  // FileDescriptors will contain both runtime-retention options and source-retention options.
   repeated buf.plugin.descriptor.v1.FileDescriptor file_descriptors = 1 [
     (buf.validate.field).repeated.min_items = 1,
     (buf.validate.field).cel = {
