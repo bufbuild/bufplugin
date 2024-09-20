@@ -14,11 +14,11 @@
 
 syntax = "proto3";
 
-package buf.plugin.check.v1;
+package buf.plugin.descriptor.v1;
 
 import "buf/validate/validate.proto";
 
-option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/descriptor/v1";
 
 // A reference to a FileDescriptor or to a location within a FileDescriptor.
 //
@@ -26,9 +26,9 @@ option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/
 // A location is referenced by its source path, following the semantics of
 // google.protobuf.SourceCodeInfo.Location.path.
 //
-// A Location may or may not include a source path. If a source path is not included, the
-// Location just references the FileDescriptor as a whole.
-message Location {
+// A FileLocation may or may not include a source path. If a source path is not included, the
+// FileLocation just references the FileDescriptor as a whole.
+message FileLocation {
   option (buf.validate.message).cel = {
     id: "file_name_present_if_source_path_present"
     message: "file_name must be present if source_path is present"

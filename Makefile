@@ -10,7 +10,7 @@ BIN := .tmp/bin
 export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 
-BUF_VERSION := v1.38.0
+BUF_VERSION := v1.42.0
 COPYRIGHT_YEARS := 2024
 
 .PHONY: help
