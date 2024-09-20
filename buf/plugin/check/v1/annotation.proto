@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package buf.plugin.check.v1;
 
-import "buf/plugin/check/v1/location.proto";
+import "buf/plugin/descriptor/v1/file_location.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
@@ -42,15 +42,16 @@ message Annotation {
   //
   // Optional.
   string message = 2;
-  // The location of the Failure in a File within the files list.
+  // The location of the failure in a FileDescriptor within the file_descriptors list.
   //
   // Optional.
-  Location location = 3;
-  // The location of the Failure in a File in the against_files list.
+  buf.plugin.descriptor.v1.FileLocation file_location = 3;
+  // The location of the failure in a FileDescriptor in the against_file_descriptors list.
   //
   // Optional.
   //
-  // This may be present even if location is not present. For example, if a File was deleted,
-  // this may reference the deleted File in against_files, while location will not be present.
-  Location against_location = 4;
+  // This may be present even if file_location is not present. For example, if a file was deleted,
+  // this may reference the deleted FileDescriptor in against_file_descriptors, while file_location
+  // will not be present.
+  buf.plugin.descriptor.v1.FileLocation against_file_location = 4;
 }

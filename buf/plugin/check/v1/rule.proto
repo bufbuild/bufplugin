@@ -23,8 +23,8 @@ option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/
 // The type of the Rule.
 //
 // Currently, there are only two types of rules: lint rules, and breaking change rules.
-// Breaking change rules require files to check against; if the Rule ID of a breaking change
-// Rule is specified in a Check call, then against_files are required.
+// Breaking change rules require FileDescriptors to check against; if the Rule ID of a breaking change
+// Rule is specified in a Check call, then against_file_descriptors are required.
 enum RuleType {
   // The unspecified value.
   RULE_TYPE_UNSPECIFIED = 0;

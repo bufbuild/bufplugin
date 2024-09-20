@@ -14,24 +14,23 @@
 
 syntax = "proto3";
 
-package buf.plugin.check.v1;
+package buf.plugin.descriptor.v1;
 
 import "buf/validate/validate.proto";
 import "google/protobuf/descriptor.proto";
 
-option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/descriptor/v1";
 
-// A File to check.
+// A file descriptor.
 //
-// A File is represented as a FileDescriptorProto, with the additional property of whether
+// A FileDescriptor is represented as a FileDescriptorProto, with the additional property of whether
 // or not the File is an import.
-message File {
+message FileDescriptor {
   // The FileDescriptorProto that represents the file.
   //
   // Required.
   //
   // This will always contain SourceCodeInfo.
-  // All files will be unique by name.
   google.protobuf.FileDescriptorProto file_descriptor_proto = 1 [
     (buf.validate.field).required = true,
     (buf.validate.field).cel = {

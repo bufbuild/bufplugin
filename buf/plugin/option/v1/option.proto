@@ -14,18 +14,17 @@
 
 syntax = "proto3";
 
-package buf.plugin.check.v1;
+package buf.plugin.option.v1;
 
 import "buf/validate/validate.proto";
 
-option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/check/v1";
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/option/v1";
 
-// An option for a Rule.
+// An option for a plugin.
 //
-// Options are key/values that can control the behavior of a Rule when run with Check,
-// and can control the value of the Purpose string of the Rule.
+// Options are key/values that can control the behavior of a plugin.
 //
-// For example, if you had a Rule that checked that the suffix of all Services was "API",
+// For example, if you had a check Rule that checked that the suffix of all Services was "API",
 // you may want an option with key "service_suffix" that can override the suffix "API" to
 // another suffix such as "Service". This would result in the behavior of check changing,
 // as well as result in the Purpose string potentially changing to specify that the
