@@ -29,10 +29,6 @@ service GenerateService {
   rpc Generate(GenerateRequest) returns (GenerateResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
-  // Get information about a plugin.
-  rpc GetInfo(GetInfoRequest) returns (GetInfoResponse) {
-    option idempotency_level = NO_SIDE_EFFECTS;
-  }
 }
 
 // A request for generation.
@@ -82,13 +78,4 @@ message GenerateResponse {
     message: "File paths must be unique"
     expression: "this.map(file, file.path).unique()"
   }];
-}
-
-// A request for info.
-message GetInfoRequest {}
-
-// The information about the plugin.
-message GetInfoResponse {
-  // The maximum edition that the plugin supports.
-  int32 maximum_edition = 1;
 }

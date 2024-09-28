@@ -35,4 +35,8 @@ message PluginInfo {
   License license = 2;
   // Documentation for a plugin.
   Doc doc = 3;
+  // The maximum edition that the plugin supports.
+  //
+  // If not set, the plugin is assumed to support all editions.
+  int32 maximum_edition = 4;
 }
