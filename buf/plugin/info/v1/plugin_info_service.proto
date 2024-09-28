@@ -16,24 +16,24 @@ syntax = "proto3";
 
 package buf.plugin.info.v1;
 
-import "buf/plugin/info/v1/info.proto";
+import "buf/plugin/info/v1/plugin_info.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/info/v1";
 
 // The service that returns information about the plugin.
-service InfoService {
-  // GetInfo gets information about the plugin.
-  rpc GetInfo(GetInfoRequest) returns (GetInfoResponse) {
+service PluginInfoService {
+  // GetPluginInfo gets information about the plugin.
+  rpc GetPluginInfo(GetPluginInfoRequest) returns (GetPluginInfoResponse) {
     option idempotency_level = NO_SIDE_EFFECTS;
   }
 }
 
 // A request to get information about a plugin.
-message GetInfoRequest {}
+message GetPluginInfoRequest {}
 
 // A response containing information about a plugin.
-message GetInfoResponse {
+message GetPluginInfoResponse {
   // The information about the plugin.
-  Info info = 1 [(buf.validate.field).required = true];
+  PluginInfo plugin_info = 1 [(buf.validate.field).required = true];
 }
