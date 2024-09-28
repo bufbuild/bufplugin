@@ -16,20 +16,23 @@ syntax = "proto3";
 
 package buf.plugin.info.v1;
 
-import "buf/plugin/info/v1/doc.proto";
-import "buf/plugin/info/v1/license.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/info/v1";
 
-// Information about a plugin.
-message Info {
-  // The url for the plugin.
+// A plugin license.
+message License {
+  // The SPDX license ID.
   //
-  // This typically is the source control repository that contains the plugin's implementation.
-  string url = 1 [(buf.validate.field).string.uri = true];
-  // The license of the plugin.
-  License license = 2;
-  // Documentation for a plugin.
-  Doc doc = 3;
+  // See https://spdx.org/licenses.
+  string spdx_license_id = 1;
+  // The source of a license is either raw text, or a URL that contains the license.
+  oneof source {
+    option (buf.validate.oneof).required = true;
+
+    // The raw text of the license.
+    string text = 2;
+    // The url that contains the license
+    string url = 3 [(buf.validate.field).string.uri = true];
+  }
 }

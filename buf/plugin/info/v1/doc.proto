@@ -16,20 +16,19 @@ syntax = "proto3";
 
 package buf.plugin.info.v1;
 
-import "buf/plugin/info/v1/doc.proto";
-import "buf/plugin/info/v1/license.proto";
 import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/info/v1";
 
-// Information about a plugin.
-message Info {
-  // The url for the plugin.
+// Documentation for a plugin.
+message Doc {
+  // A short string describing the plugin.
   //
-  // This typically is the source control repository that contains the plugin's implementation.
-  string url = 1 [(buf.validate.field).string.uri = true];
-  // The license of the plugin.
-  License license = 2;
-  // Documentation for a plugin.
-  Doc doc = 3;
+  // This is required.
+  string short = 1 [(buf.validate.field).required = true];
+  // A long string providing more details on using the plugin.
+  //
+  // When producing documentation for the plugin, this will be concatenated with
+  // the value from short with a newline separating short and long.
+  string long = 2;
 }
