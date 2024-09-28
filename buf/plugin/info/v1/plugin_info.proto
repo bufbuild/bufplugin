@@ -1,0 +1,38 @@
+// Copyright 2024 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.info.v1;
+
+import "buf/plugin/info/v1/doc.proto";
+import "buf/plugin/info/v1/license.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/info/v1";
+
+// Information about a plugin.
+message PluginInfo {
+  // The url for the plugin.
+  //
+  // This typically is the source control repository that contains the plugin's implementation.
+  string url = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED,
+    (buf.validate.field).string.uri = true
+  ];
+  // The license of the plugin.
+  License license = 2;
+  // Documentation for a plugin.
+  Doc doc = 3;
+}
