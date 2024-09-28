@@ -23,7 +23,7 @@ import "buf/validate/validate.proto";
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/info/v1";
 
 // Information about a plugin.
-message Info {
+message PluginInfo {
   // The url for the plugin.
   //
   // This typically is the source control repository that contains the plugin's implementation.
