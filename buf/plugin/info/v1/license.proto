@@ -33,6 +33,9 @@ message License {
     // The raw text of the license.
     string text = 2;
     // The url that contains the license
-    string url = 3 [(buf.validate.field).string.uri = true];
+    string url = 3 [
+      (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED,
+      (buf.validate.field).string.uri = true
+    ];
   }
 }

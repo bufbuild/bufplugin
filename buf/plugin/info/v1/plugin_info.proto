@@ -27,7 +27,10 @@ message PluginInfo {
   // The url for the plugin.
   //
   // This typically is the source control repository that contains the plugin's implementation.
-  string url = 1 [(buf.validate.field).string.uri = true];
+  string url = 1 [
+    (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED,
+    (buf.validate.field).string.uri = true
+  ];
   // The license of the plugin.
   License license = 2;
   // Documentation for a plugin.
