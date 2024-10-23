@@ -16,23 +16,16 @@ syntax = "proto3";
 
 package buf.plugin.info.v1;
 
-import "buf/plugin/info/v1/doc.proto";
 import "buf/plugin/info/v1/license.proto";
-import "buf/validate/validate.proto";
 
 option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/info/v1";
 
 // Information about a plugin.
 message PluginInfo {
-  // The url for the plugin.
+  // A long string providing more details on using the plugin.
   //
-  // This typically is the source control repository that contains the plugin's implementation.
-  string url = 1 [
-    (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED,
-    (buf.validate.field).string.uri = true
-  ];
+  // This is equivalent to a README.md in effect.
+  string documentation = 1;
   // The license of the plugin.
   License license = 2;
-  // Documentation for a plugin.
-  Doc doc = 3;
 }
