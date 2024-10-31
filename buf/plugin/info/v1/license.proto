@@ -25,7 +25,11 @@ message License {
   // The SPDX license ID.
   //
   // See https://spdx.org/licenses.
-  string spdx_license_id = 1;
+  string spdx_license_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.pattern = "^[a-zA-Z0-9-.+]+$",
+    (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
+  ];
   // The source of a license is either raw text, or a URL that contains the license.
   oneof source {
     option (buf.validate.oneof).required = true;
