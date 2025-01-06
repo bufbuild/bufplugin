@@ -11,7 +11,7 @@ export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 
 BUF_VERSION := v1.42.0
-COPYRIGHT_YEARS := 2024
+COPYRIGHT_YEARS := 2024-2025
 
 .PHONY: help
 help: ## Describe useful make targets
