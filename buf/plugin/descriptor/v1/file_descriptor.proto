@@ -29,19 +29,12 @@ message FileDescriptor {
   // The FileDescriptorProto that represents the file.
   //
   // Required.
-  //
-  // This will always contain SourceCodeInfo.
   google.protobuf.FileDescriptorProto file_descriptor_proto = 1 [
     (buf.validate.field).required = true,
     (buf.validate.field).cel = {
       id: "name_present"
       message: "name must be present"
       expression: "has(this.name)"
-    },
-    (buf.validate.field).cel = {
-      id: "source_code_info_present"
-      message: "source_code_info must be present"
-      expression: "has(this.source_code_info)"
     }
   ];
   // Whether or not the file is considered an "import".
