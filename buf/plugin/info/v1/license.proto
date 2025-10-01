@@ -28,7 +28,7 @@ message License {
   string spdx_license_id = 1 [
     (buf.validate.field).string.min_len = 1,
     (buf.validate.field).string.pattern = "^[a-zA-Z0-9-.+]+$",
-    (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
+    (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE
   ];
   // The source of a license is either raw text, or a URL that contains the license.
   oneof source {
@@ -38,7 +38,7 @@ message License {
     string text = 2;
     // The url that contains the license.
     string url = 3 [
-      (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED,
+      (buf.validate.field).ignore = IGNORE_IF_ZERO_VALUE,
       (buf.validate.field).string.uri = true
     ];
   }
