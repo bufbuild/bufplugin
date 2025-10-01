@@ -1,4 +1,4 @@
-// Copyright 2024 Buf Technologies, Inc.
+// Copyright 2024-2025 Buf Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,14 +25,18 @@ message License {
   // The SPDX license ID.
   //
   // See https://spdx.org/licenses.
-  string spdx_license_id = 1;
+  string spdx_license_id = 1 [
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.pattern = "^[a-zA-Z0-9-.+]+$",
+    (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED
+  ];
   // The source of a license is either raw text, or a URL that contains the license.
   oneof source {
     option (buf.validate.oneof).required = true;
 
     // The raw text of the license.
     string text = 2;
-    // The url that contains the license
+    // The url that contains the license.
     string url = 3 [
       (buf.validate.field).ignore = IGNORE_IF_UNPOPULATED,
       (buf.validate.field).string.uri = true
