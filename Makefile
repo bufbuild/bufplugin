@@ -10,8 +10,9 @@ BIN := .tmp/bin
 export PATH := $(BIN):$(PATH)
 export GOBIN := $(abspath $(BIN))
 
-BUF_VERSION := v1.42.0
-COPYRIGHT_YEARS := 2024-2025
+BUF_VERSION := v1.73.0
+COPYRIGHT_YEARS := 2024-2026
+LICENSE_IGNORE := -e .github/ -e buf.yaml
 
 .PHONY: help
 help: ## Describe useful make targets
@@ -46,7 +47,8 @@ generate: $(BIN)/buf $(BIN)/license-header ## Format and regenerate license head
 	license-header \
 		--license-type apache \
 		--copyright-holder "Buf Technologies, Inc." \
-		--year-range "$(COPYRIGHT_YEARS)"
+		--year-range "$(COPYRIGHT_YEARS)" \
+		$(LICENSE_IGNORE)
 	buf format -w
 
 .PHONY: checkgenerate

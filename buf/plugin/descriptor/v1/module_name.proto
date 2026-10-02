@@ -1,0 +1,43 @@
+// Copyright 2024-2026 Buf Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package buf.plugin.descriptor.v1;
+
+import "buf/validate/validate.proto";
+
+option go_package = "buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go/buf/plugin/descriptor/v1";
+
+// The fully-qualified name of a module on the Buf Schema Registry.
+message ModuleName {
+  // The registry hostname of the module.
+  //
+  // Required.
+  string registry = 1 [(buf.validate.field).required = true];
+  // The name of the owner of the module, either a user or organization.
+  //
+  // Required.
+  string owner = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.max_len = 48
+  ];
+  // The name of the module.
+  //
+  // Required.
+  string module = 3 [(buf.validate.field).string = {
+    min_len: 2
+    max_len: 100
+  }];
+}
