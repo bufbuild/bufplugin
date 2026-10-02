@@ -1,4 +1,4 @@
-// Copyright 2024-2025 Buf Technologies, Inc.
+// Copyright 2024-2026 Buf Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ syntax = "proto3";
 
 package buf.plugin.descriptor.v1;
 
+import "buf/plugin/descriptor/v1/module_name.proto";
 import "buf/validate/validate.proto";
 import "google/protobuf/descriptor.proto";
 
@@ -60,4 +61,6 @@ message FileDescriptor {
   //
   // This matches the shape of the public_dependency and weak_dependency fields.
   repeated int32 unused_dependency = 4;
+  // The name of the module that the file belongs to, if any.
+  ModuleName module_name = 5;
 }
