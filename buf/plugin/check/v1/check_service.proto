@@ -107,6 +107,30 @@ message CheckRequest {
       pattern: "^[A-Z0-9][A-Z0-9_]*[A-Z0-9]$"
     }
   ];
+  // The IDs of all Rules that the caller runs in this check, across its builtin Rules and
+  // all plugins.
+  //
+  // Optional. If empty, the caller did not provide this information.
+  //
+  // This includes the IDs in rule_ids, so if both are set, rule_ids is a subset of
+  // enabled_rule_ids. The IDs are those left after the caller resolved its configuration,
+  // for Buf the use and except lists, and are of the same RuleType as rule_ids. Path-based
+  // ignores do not remove IDs from this list.
+  //
+  // The list covers a single configuration: for Buf, one module's lint or breaking
+  // configuration with its plugins, or one policy. Rules enabled by other modules or
+  // policies are not included.
+  //
+  // The list is not paginated. If rule_ids is split across several requests, every
+  // request carries the full list.
+  repeated string enabled_rule_ids = 5 [
+    (buf.validate.field).repeated.unique = true,
+    (buf.validate.field).repeated.items.string = {
+      min_len: 3
+      max_len: 64
+      pattern: "^[A-Z0-9][A-Z0-9_]*[A-Z0-9]$"
+    }
+  ];
 }
 
 // A response containing annotations that the check returned from failures.
